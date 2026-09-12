@@ -18,7 +18,7 @@ from pathlib import Path
 import matplotlib; matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-RUNS = ["png_1", "png_2", "jpg_1", "jpgbar_1", "noise_1"]
+RUNS = ["png_1", "png_2", "jpg_1", "jpgbar_1", "noise_1", "noise_2"]
 REF = "png_1"
 ROOT = Path("runs/out")
 CHUNK_BOUNDARIES = [60, 120, 180, 240]
@@ -93,7 +93,7 @@ for a in RUNS:
 
 # figures
 Path("figures").mkdir(exist_ok=True)
-colors = {"png_1": "tab:blue", "png_2": "tab:cyan", "jpg_1": "tab:red", "jpgbar_1": "tab:orange", "noise_1": "tab:green"}
+colors = {"png_1": "tab:blue", "png_2": "tab:cyan", "jpg_1": "tab:red", "jpgbar_1": "tab:orange", "noise_1": "tab:green", "noise_2": "tab:olive"}
 
 fig, ax = plt.subplots(figsize=(8, 7))
 for r in RUNS:

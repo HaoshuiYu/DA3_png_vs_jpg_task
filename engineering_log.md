@@ -85,7 +85,8 @@ While it fulfills partially repetitive functions, the central focus is to narow 
 
 ### Test 5: DA3-Streaming runs align to png
 
-Pose files are camera-to-world (confirmed at da3_streaming.py:717); camera position is the translation column.
+Pose files are camera-to-world (da3_streaming.py:717); camera position is the translation column.
+Config: default (chunk 120, overlap 60, 504 px longest side), save_depth_conf_result on. A100 40 GB, torch 2.14, DA3 commit 3d835ec.
 
 | Run | Input | ATE (resize allowed) | ATE (fixed size) | Scale | Jitter (raw / scale-corrected) | Worst frame | Path length |
 |---|---|---|---|---|---|---|---|
@@ -93,17 +94,19 @@ Pose files are camera-to-world (confirmed at da3_streaming.py:717); camera posit
 | png_2 | same PNG, rerun | 0.000 | 0.002 | 1.000 | 0.130 / 0.130 | 0.000 | 42.79 |
 | jpg_1 | original JPG | 0.361 | 1.095 | 1.102 | 0.106 / 0.117 | 0.894 | 37.39 |
 | jpgbar_1 | JPG pixels, PNG container | 0.361 | 1.095 | 1.102 | 0.106 / 0.117 | 0.894 | 37.39 |
-| noise_1 | PNG + random ±1 | 0.361 | 1.359 | 1.133 | 0.096 / 0.109 | 0.931 | 35.64 |
+| noise_1 | PNG + random ±1, seed 0 | 0.361 | 1.359 | 1.133 | 0.096 / 0.109 | 0.931 | 35.64 |
+| noise_2 | PNG + random ±1, seed 1 | 0.090 | 0.176 | 1.014 | 0.148 / 0.150 | 0.265 | 43.43 |
 
 Pairwise ATE (resize allowed), row overlaid onto column:
 
-| | png_1 | png_2 | jpg_1 | jpgbar_1 | noise_1 |
-|---|---|---|---|---|---|
-| png_1 | 0 | 0.000 | 0.328 | 0.328 | 0.319 |
-| png_2 | 0.000 | 0 | 0.328 | 0.328 | 0.319 |
-| jpg_1 | 0.361 | 0.361 | 0 | 0.000 | 0.116 |
-| jpgbar_1 | 0.361 | 0.361 | 0.000 | 0 | 0.116 |
-| noise_1 | 0.361 | 0.361 | 0.119 | 0.119 | 0 |
+| | png_1 | png_2 | jpg_1 | jpgbar_1 | noise_1 | noise_2 |
+|---|---|---|---|---|---|---|
+| png_1 | 0 | 0.000 | 0.328 | 0.328 | 0.319 | 0.089 |
+| png_2 | 0.000 | 0 | 0.328 | 0.328 | 0.319 | 0.089 |
+| jpg_1 | 0.361 | 0.361 | 0 | 0.000 | 0.116 | 0.379 |
+| jpgbar_1 | 0.361 | 0.361 | 0.000 | 0 | 0.116 | 0.379 |
+| noise_1 | 0.361 | 0.361 | 0.119 | 0.119 | 0 | 0.400 |
+| noise_2 | 0.090 | 0.090 | 0.348 | 0.348 | 0.358 | 0 |
 
 Readings:
 - png_1 = png_2 → deterministic; not run-to-run noise.
@@ -112,3 +115,4 @@ Readings:
 - noise_1 sits with JPG (0.12) not PNG (0.32) → any ±1 perturbation produces the same alternative; JPEG structure not required.
 - Scale-corrected jitter: PNG 0.130 vs JPG 0.117 → PNG slightly wobblier, same direction as the assessor's figure, smaller magnitude.
 - Magnitude of the effect is smaller than in the provided figure; likely a configuration difference (the assessor may have downsampled).
+
