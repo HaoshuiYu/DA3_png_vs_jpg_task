@@ -1,0 +1,11 @@
+data/
+runs/**/results_output/
+runs/**/pcd/
+*.ply
+*.npz
+*.pdf
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.DS_Store
+.vscode/
