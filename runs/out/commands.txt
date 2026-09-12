@@ -1,0 +1,20 @@
+    1  cd ~ && git clone --recursive https://github.com/ByteDance-Seed/Depth-Anything-3.git && cd Depth-Anything-3 && git checkout 3d835ec1a5802d64a8b8b15f817a1ab54809bfe4 && pip install -e . && pip install -r da3_streaming/requirements.txt && cd da3_streaming && bash scripts/download_weights.sh && cd ~ && pip install gdown && mkdir -p data && cd data && gdown --folder "https://drive.google.com/drive/folders/1OJCwsucl2oxQaGR2eC-75wfzGio7dXwv" && unzip -q '*.zip' -x '__MACOSX/*' && ls
+    2  ls -R ~/data | head -20
+    3  cd ~/data && mv test/*.zip . && unzip -q frames_png.zip -x '__MACOSX/*' && unzip -q frames_jpg.zip -x '__MACOSX/*' && ls
+    4  ls -la ~/*.zip ~/data/*.zip 2>/dev/null
+    5  ls -la ~/*.zip
+    6  mv ~/frames_jpgbar.zip ~/frames_png_noise.zip ~/data/ && cd ~/data && unzip -q frames_jpgbar.zip && unzip -q frames_png_noise.zip && ls && cd ~/Depth-Anything-3/da3_streaming && sed -i 's/save_depth_conf_result: .*/save_depth_conf_result: True/' configs/base_config.yaml && grep save_depth configs/base_config.yaml
+    7  ls ~/data
+    8  cd ~/data && unzip -q frames_png_noise.zip; ls frames_jpgbar | wc -l; ls frames_png_noise | wc -l; ls frames_jpgbar | head -3
+    9  cd ~/Depth-Anything-3/da3_streaming && sed -i 's/save_depth_conf_result: .*/save_depth_conf_result: True/' configs/base_config.yaml && grep save_depth configs/base_config.yaml
+   10  cd ~/Depth-Anything-3/da3_streaming && python da3_streaming.py --image_dir ~/data/frames_png --output_dir ~/out/png_1 && python da3_streaming.py --image_dir ~/data/frames_jpg --output_dir ~/out/jpg_1 && python da3_streaming.py --image_dir ~/data/frames_png --output_dir ~/out/png_2 && python da3_streaming.py --image_dir ~/data/frames_jpgbar --output_dir ~/out/jpgbar_1 && python da3_streaming.py --image_dir ~/data/frames_png_noise --output_dir ~/out/noise_1 && echo ALL DONE
+   11  python -c "import torch; print(torch.__version__)"; pip show xformers 2>/dev/null | grep -i version
+   12  pip install torchvision --index-url https://download.pytorch.org/whl/cu130 && python -c "import torch, torchvision; print(torch.__version__, torchvision.__version__, torch.cuda.is_available()); import xformers; print('xformers ok')"
+   13  pip install --user --ignore-installed torchvision --index-url https://download.pytorch.org/whl/cu130 && python -c "import torch, torchvision; print(torch.__version__, torchvision.__version__, torch.cuda.is_available()); import xformers; print('xformers ok')"
+   14  pip install --user "numpy<2" && python -c "import numpy, torch, torchvision; print(numpy.__version__, torch.__version__, torchvision.__version__, torch.cuda.is_available()); import xformers; print('xformers ok')"
+   15  cd ~/Depth-Anything-3/da3_streaming && python da3_streaming.py --image_dir ~/data/frames_png --output_dir ~/out/png_1 && python da3_streaming.py --image_dir ~/data/frames_jpg --output_dir ~/out/jpg_1 && python da3_streaming.py --image_dir ~/data/frames_png --output_dir ~/out/png_2 && python da3_streaming.py --image_dir ~/data/frames_jpgbar --output_dir ~/out/jpgbar_1 && python da3_streaming.py --image_dir ~/data/frames_png_noise --output_dir ~/out/noise_1 && echo ALL DONE
+   16  cd ~ && cp Depth-Anything-3/da3_streaming/configs/base_config.yaml out/ && zip -r results.zip out -x '*.ply' && ls -la results.zip
+   17  cd ~ && zip -r results_poses.zip out -i '*/camera_poses.txt' '*/intrinsic.txt' '*/base_config.yaml' && ls -la results_poses.zip
+   18  Get-ChildItem $HOME\Downloads\results*.zip
+   19  https://71453a0b0dee43a7a1ea3fea251e6f4b-0.lambdaspaces.com/files/results_poses.zip
+   20  cd ~ && pip freeze > out/pip_freeze.txt && nvidia-smi > out/nvidia_smi.txt && history > out/commands.txt && zip -r results_small.zip out -x '*.npz' '*.ply' && ls -la results_small.zip
