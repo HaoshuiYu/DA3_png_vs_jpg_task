@@ -82,5 +82,33 @@ The objective is to rule out different explanations by turning the png into a jp
 | PNG compressed with that recipe == given JPG | 300/300 bytes | JPGs are exactly the PNGs compressed once; nothing else happened |
 
 While it fulfills partially repetitive functions, the central focus is to narow the explanations to be exclusively driven by the Pillow compression at 95. This means there's only two explanations that remain, it's either caused by the process of lossy compression which permanently alters the pixels, or it's the formatting of the jpg vs png such that the decoder evaluates the two differently.
- 
 
+### Test 5: DA3-Streaming runs align to png
+
+Pose files are camera-to-world (confirmed at da3_streaming.py:717); camera position is the translation column.
+
+| Run | Input | ATE (resize allowed) | ATE (fixed size) | Scale | Jitter (raw / scale-corrected) | Worst frame | Path length |
+|---|---|---|---|---|---|---|---|
+| png_1 | original PNG | 0 | 0 | 1.000 | 0.130 / 0.130 | 0 | 42.80 |
+| png_2 | same PNG, rerun | 0.000 | 0.002 | 1.000 | 0.130 / 0.130 | 0.000 | 42.79 |
+| jpg_1 | original JPG | 0.361 | 1.095 | 1.102 | 0.106 / 0.117 | 0.894 | 37.39 |
+| jpgbar_1 | JPG pixels, PNG container | 0.361 | 1.095 | 1.102 | 0.106 / 0.117 | 0.894 | 37.39 |
+| noise_1 | PNG + random ±1 | 0.361 | 1.359 | 1.133 | 0.096 / 0.109 | 0.931 | 35.64 |
+
+Pairwise ATE (resize allowed), row overlaid onto column:
+
+| | png_1 | png_2 | jpg_1 | jpgbar_1 | noise_1 |
+|---|---|---|---|---|---|
+| png_1 | 0 | 0.000 | 0.328 | 0.328 | 0.319 |
+| png_2 | 0.000 | 0 | 0.328 | 0.328 | 0.319 |
+| jpg_1 | 0.361 | 0.361 | 0 | 0.000 | 0.116 |
+| jpgbar_1 | 0.361 | 0.361 | 0.000 | 0 | 0.116 |
+| noise_1 | 0.361 | 0.361 | 0.119 | 0.119 | 0 |
+
+Readings:
+- png_1 = png_2 → deterministic; not run-to-run noise.
+- jpg_1 = jpgbar_1 → pixel values only; container and decoder irrelevant.
+- PNG vs JPG: 0.36 on a 43-unit path (<1%) after resize; 1.09 with size fixed → the disagreement is mainly **scale** (JPG ~10% smaller), which is set at chunk seams by the Sim(3) stitching.
+- noise_1 sits with JPG (0.12) not PNG (0.32) → any ±1 perturbation produces the same alternative; JPEG structure not required.
+- Scale-corrected jitter: PNG 0.130 vs JPG 0.117 → PNG slightly wobblier, same direction as the assessor's figure, smaller magnitude.
+- Magnitude of the effect is smaller than in the provided figure; likely a configuration difference (the assessor may have downsampled).
