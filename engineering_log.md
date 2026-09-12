@@ -66,4 +66,21 @@ I applied DA3's method to claude and requested to locate core components that ar
 - averaging: but I realized after taht averaging would compound noise, the origin and "root cause" which is the intention of this project would not originate from averaging
 - claude suggested the chunking logic, but I think it's trivial because the frames have identical dimensions, specifications, etc. which makes chunking likely largely identical, but TODO: inspect chunking logic in case
 
+**decoder inspection**
+DA3 processes every scene received through Image.open(path).convert("RGB"), but Pillow internally is what converts the frames to arrays. Pillow differentiates in method:
+- jpg is unpack compression, run discrete cos transform, restore half resolution RGB and then turn into RGB proper
+- png is just decompress (zlib inflate), then undo the per-row prediction filter. No transform, no rounding; output is bit-identical to what was encoded.
+
+### Test 4: reencoding png into jpg
+The objective is to rule out different explanations by turning the png into a jpg to inspect core features of the frames. 
+
+### Test 4: re-encode test
+
+| Measure | Result | Reading |
+|---|---|---|
+| Recipe read from JPG header | 4:2:0 colour, grid = q95 | Encoder settings recovered from the file itself |
+| PNG compressed with that recipe == given JPG | 300/300 bytes | JPGs are exactly the PNGs compressed once; nothing else happened |
+
+While it fulfills partially repetitive functions, the central focus is to narow the explanations to be exclusively driven by the Pillow compression at 95. This means there's only two explanations that remain, it's either caused by the process of lossy compression which permanently alters the pixels, or it's the formatting of the jpg vs png such that the decoder evaluates the two differently.
+ 
 
