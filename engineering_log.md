@@ -17,7 +17,7 @@ TODO: consider the curves were aligned via a transform onto another, so their pr
 
 **Interpretation**
 This is on camera extrinsics information because it's missing a yth dimension, so it cannot be teh depth map DA3 outputs since this graph would not be useful that way at all.
-- the two curves are heavily correlated but differ locally, higher variance in PNG guess is that's attributable to lossy compression
+- the two curves are heavily correlated but differ locally: it's very strange because PNG is lossless and jpg is lossy, but PNG has more variance somehow. So, having more information made the estimation worse which is counterintuitive. This should be something to inspect heavily. 
 - jpg is much smoother past 0 on X
 - heavy cluster below 0 for both curves
 
@@ -54,6 +54,16 @@ Compile into Json for inspection
 | Colour mode | RGB | RGB | Three 8-bit channels, no alpha in either set |
 | Ancillary metadata keys | none | jfif, jfif_version, jfif_density, jfif_unit | PNG carries nothing; JPG carries only JFIF container boilerplate
 
+My guess was that the metadata would be identical to begin with, but the verification step wasn't too tedious so I thought we'd just run it. 
 
+### Test 3: Internal inspection file conversion 
+
+The objective here is to outline exactly where and the internal logic behind when DA3 converts the frames into values and the subsequent averaging and transformations that may compound any noise present. 
+
+**methodology** 
+I applied DA3's method to claude and requested to locate core components that are relevant to inspect logic myself:
+- the conversion of frames into array 
+- averaging: but I realized after taht averaging would compound noise, the origin and "root cause" which is the intention of this project would not originate from averaging
+- claude suggested the chunking logic, but I think it's trivial because the frames have identical dimensions, specifications, etc. which makes chunking likely largely identical, but TODO: inspect chunking logic in case
 
 
