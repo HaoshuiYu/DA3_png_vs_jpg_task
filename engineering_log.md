@@ -11,16 +11,17 @@ Used claude to confirm the frame sets are identical: sandbox over the framesets 
 
 Apparently, mac zipping has unique tendencies that I have to undo with mACOSX. In this same step, I verified that the scenes came from the same scene by checking the size being both 300. 
 
-**Test 1**
+### Graph Interpretation:
+From the curve provided: 
+TODO: consider the curves were aligned via a transform onto another, so their practical difference is likely larger, could just be a positional displacement but could also be greater than that. Unsure exactly what to do with this information.
 
-Inspect the components of the frames for being identical through Pillow gray lvl 3 core components:
-- gray lvl: checks whether the frames are the same
-- minimum lvl: checks the arrays for the smallest difference, identify the frame counts from each of png and jpg to see if it matches. If so, the frame is positioned in the same way
-- Progression: check the rate of change in gray lvl to verify the two compressions move in about the same manner
+**Interpretation**
+This is on camera extrinsics information because it's missing a yth dimension, so it cannot be teh depth map DA3 outputs since this graph would not be useful that way at all.
+- the two curves are heavily correlated but differ locally, higher variance in PNG guess is that's attributable to lossy compression
+- jpg is much smoother past 0 on X
+- heavy cluster below 0 for both curves
 
-Compile into Json for inspection
-
-### Test 1 — Frame identity and motion profile
+### Test 1: Frame identity and motion profile
 
 | Measure | PNG | JPG | Reading |
 |---|---|---|---|
@@ -32,6 +33,27 @@ Compile into Json for inspection
 | Motion-profile correlation | 0.99999 | | Identical temporal structure |
 | Near-static consecutive pairs | 48 | 45 | JPEG rounding slightly separates near-duplicate frames |
 
-Conclusion: same frames, same order. Ordering is ruled out as a cause.
+**methodology**
+
+Inspect the components of the frames for being identical through Pillow gray lvl 3 core components:
+- gray lvl: checks whether the frames are the same
+- minimum lvl: checks the arrays for the smallest difference, identify the frame counts from each of png and jpg to see if it matches. If so, the frame is positioned in the same way
+- Progression: check the rate of change in gray lvl to verify the two compressions move in about the same manner
+
+Compile into Json for inspection
+
+**conclusion** frames, arrangement, progression of scenes identical. png vs jpg difference not attributable here.
+
+### Test 2: metadata and general information
+
+| Measure | PNG | JPG | Reading |
+|---|---|---|---|
+| Unique attribute combinations | 1 (300 files) | 1 (300 files) | Every file within each set is homogeneous; no anomalous frame |
+| Format (from file signature) | PNG | JPEG | File contents match extension |
+| Dimensions | 1024 × 576 | 1024 × 576 | Same pixel grid; no resize or crop difference |
+| Colour mode | RGB | RGB | Three 8-bit channels, no alpha in either set |
+| Ancillary metadata keys | none | jfif, jfif_version, jfif_density, jfif_unit | PNG carries nothing; JPG carries only JFIF container boilerplate
+
+
 
 
