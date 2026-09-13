@@ -1,4 +1,10 @@
 # Engineering Log
+
+## TLDR:
+Question: why do PNG and JPG versions of the same 300 frames give different camera paths in DA3-Streaming?
+Answer: the JPG pixels differ from the PNG pixels by one JPEG compression. DA3-Streaming gives the same path for the same input every time, ignores file type, and moves its answer by under 1% of the path whenever the pixels change by even one shade — from JPEG or from random noise alike.
+Not checked: which step inside the program is the sensitive one; why the provided figure shows a bigger gap than I reproduced.
+
 ## Hypothesis
 
 **Theme**
@@ -7,7 +13,7 @@ scene is compressed differently png and jpg which reveal different effects when 
 
 Consider: shape, distribution of the differences.
 
-Used claude to confirm the frame sets are identical: sandbox over the framesets found 300x300 dist matrix. 
+Used claude to confirm the frame sets are similar: sandbox over the framesets found 300x300 dist matrix. 
 
 Apparently, mac zipping has unique tendencies that I have to undo with mACOSX. In this same step, I verified that the scenes came from the same scene by checking the size being both 300. 
 
@@ -19,7 +25,7 @@ TODO: consider the curves were aligned via a transform onto another, so their pr
 This is on camera extrinsics information because it's missing a yth dimension, so it cannot be teh depth map DA3 outputs since this graph would not be useful that way at all.
 - the two curves are heavily correlated but differ locally: it's very strange because PNG is lossless and jpg is lossy, but PNG has more variance somehow. So, having more information made the estimation worse which is counterintuitive. This should be something to inspect heavily. 
 - jpg is much smoother past 0 on X
-- heavy cluster below 0 for both curves
+- heavy cluster below 0 for both curves, likely because camera wasn't really moving then?
 
 ### Test 1: Frame identity and motion profile
 
@@ -74,14 +80,12 @@ DA3 processes every scene received through Image.open(path).convert("RGB"), but 
 ### Test 4: reencoding png into jpg
 The objective is to rule out different explanations by turning the png into a jpg to inspect core features of the frames. 
 
-### Test 4: re-encode test
-
 | Measure | Result | Reading |
 |---|---|---|
 | Recipe read from JPG header | 4:2:0 colour, grid = q95 | Encoder settings recovered from the file itself |
 | PNG compressed with that recipe == given JPG | 300/300 bytes | JPGs are exactly the PNGs compressed once; nothing else happened |
 
-While it fulfills partially repetitive functions, the central focus is to narow the explanations to be exclusively driven by the Pillow compression at 95. This means there's only two explanations that remain, it's either caused by the process of lossy compression which permanently alters the pixels, or it's the formatting of the jpg vs png such that the decoder evaluates the two differently.
+While it fulfills partially repetitive functions, the central objective of step 4 is to prepare for step 5 to show that the only core difference in a png and jpg is the comrpession step alone and nothing else.This means there's only two explanations that remain, it's either caused by the process of lossy compression which permanently alters the pixels, or it's the formatting of the jpg vs png such that the decoder evaluates the two differently.
 
 ### Test 5: DA3-Streaming runs align to png
 
@@ -111,8 +115,10 @@ Pairwise ATE (resize allowed), row overlaid onto column:
 Readings:
 - png_1 = png_2 → deterministic; not run-to-run noise.
 - jpg_1 = jpgbar_1 → pixel values only; container and decoder irrelevant.
-- PNG vs JPG: 0.36 on a 43-unit path (<1%) after resize; 1.09 with size fixed → the disagreement is mainly **scale** (JPG ~10% smaller), which is set at chunk seams by the Sim(3) stitching.
-- noise_1 sits with JPG (0.12) not PNG (0.32) → any ±1 perturbation produces the same alternative; JPEG structure not required.
+- The JPG path came out about 10% smaller. That's most of the difference. I haven't checked which step causes it
+- Two random nudges gave two different results. One moved the path about as far as JPEG did; the other barely moved it. The PNG-vs-JPG gap is about the same size as what a random nudge produces
 - Scale-corrected jitter: PNG 0.130 vs JPG 0.117 → PNG slightly wobblier, same direction as the assessor's figure, smaller magnitude.
 - Magnitude of the effect is smaller than in the provided figure; likely a configuration difference (the assessor may have downsampled).
 
+**final interpretation**
+The jpg_bar mimics the behavior of a jpg which means the action of lossy compression caused the difference in behavior. Two random nudges gave two different results. One moved the path about as far as JPEG did; the other barely moved it but did raise the variance. Ultimately, this means the the jpg compression is not a unique transformation that led to this, rather DA3 is sensitive to pixels in general to reach approximations. 
