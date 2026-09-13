@@ -16,6 +16,16 @@ png = load_centres("runs/out/png_1/camera_poses.txt")
 jpg = load_centres("runs/out/jpg_1/camera_poses.txt")
 jpg_al, s = align(jpg, png)
 
+# cosmetic: rotate in the X-Z plane so the walk heads the same way as the provided figure,
+# and put frame 0 at the origin. Rotation/shift are free choices; they change nothing physical.
+theta = np.arctan2(14, 22) - np.arctan2(png[-1, 2] - png[0, 2], png[-1, 0] - png[0, 0])
+c, s_ = np.cos(theta), np.sin(theta)
+def rot(P):
+    Q = P - png[0]
+    x, z = Q[:, 0], Q[:, 2]
+    return np.stack([c * x - s_ * z, Q[:, 1], s_ * x + c * z], axis=1)
+png, jpg_al = rot(png), rot(jpg_al)
+
 fig, ax = plt.subplots(figsize=(9, 7))
 ax.plot(png[:, 0], png[:, 2], c="blue", lw=1.5, label="PNG")
 ax.plot(jpg_al[:, 0], jpg_al[:, 2], c="red", lw=1.5, label=f"JPG (aligned, scale {s:.3f})")

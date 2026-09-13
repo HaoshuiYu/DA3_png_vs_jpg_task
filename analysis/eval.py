@@ -95,6 +95,14 @@ for a in RUNS:
 Path("figures").mkdir(exist_ok=True)
 colors = {"png_1": "tab:blue", "png_2": "tab:cyan", "jpg_1": "tab:red", "jpgbar_1": "tab:orange", "noise_1": "tab:green", "noise_2": "tab:olive"}
 
+# cosmetic: rotate all aligned runs to match the provided figure's heading, frame 0 at origin
+theta = np.arctan2(14, 22) - np.arctan2(ref[-1, 2] - ref[0, 2], ref[-1, 0] - ref[0, 0])
+c_, s_ = np.cos(theta), np.sin(theta)
+def rot(P):
+    Q = P - ref[0]; x, z = Q[:, 0], Q[:, 2]
+    return np.stack([c_ * x - s_ * z, Q[:, 1], s_ * x + c_ * z], axis=1)
+aligned = {r: rot(P) for r, P in aligned.items()}
+
 fig, ax = plt.subplots(figsize=(9, 7))
 for r in RUNS:
     P = aligned[r]
