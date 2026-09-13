@@ -95,11 +95,11 @@ for a in RUNS:
 Path("figures").mkdir(exist_ok=True)
 colors = {"png_1": "tab:blue", "png_2": "tab:cyan", "jpg_1": "tab:red", "jpgbar_1": "tab:orange", "noise_1": "tab:green", "noise_2": "tab:olive"}
 
-fig, ax = plt.subplots(figsize=(8, 7))
+fig, ax = plt.subplots(figsize=(9, 7))
 for r in RUNS:
     P = aligned[r]
     ax.plot(P[:, 0], P[:, 2], lw=1.2, color=colors[r], label=r, alpha=0.9 if r != REF else 1)
-ax.set_xlabel("X (model units)"); ax.set_ylabel("Z (model units)"); ax.set_aspect("equal")
+ax.set_xlabel("X (model units)"); ax.set_ylabel("Z (model units)")
 ax.set_title(f"top-down trajectories, all Sim(3)-aligned to {REF}"); ax.legend(); ax.grid(alpha=0.3)
 plt.tight_layout(); plt.savefig("figures/overlay_aligned.png", dpi=120)
 
